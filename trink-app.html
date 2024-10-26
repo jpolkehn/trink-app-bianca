@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trink-Erinnerung</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #d0e3f1;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 24px;
+            color: #333;
+        }
+        p {
+            font-size: 16px;
+            color: #333;
+            margin: 10px 0;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .button {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .button.blue {
+            background-color: #4d91e7;
+        }
+        .button.red {
+            background-color: #e74c3c;
+            margin-top: 20px;
+        }
+        .button.gray {
+            background-color: #7f8c8d;
+            margin-top: 20px;
+        }
+        .button.green {
+            background-color: #2ecc71;
+            margin-top: 20px;
+        }
+        .status {
+            font-size: 18px;
+            color: #e74c3c;
+            margin-top: 15px;
+        }
+        .total {
+            font-size: 16px;
+            color: #333;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Trink-Erinnerung</h1>
+    <p>Du hast heute <span id="drank-amount">0</span>ml von 1500ml getrunken.</p>
+
+    <div class="button-container">
+        <button class="button blue" onclick="addWater(150)">+150ml</button>
+        <button class="button blue" onclick="addWater(250)">+250ml</button>
+        <button class="button blue" onclick="addWater(500)">+500ml</button>
+    </div>
+
+    <button class="button red" onclick="resetWater()">Zurücksetzen</button>
+
+    <p class="status" id="status-text">Noch 1500ml bis zum Ziel.</p>
+
+    <button class="button gray" onclick="toggleSound()">Ton ausschalten</button>
+
+    <p class="total">Gesamtanzahl der Schläge: <span id="stroke-count">0</span></p>
+
+    <button class="button green" onclick="markComplete()">Abgearbeitet</button>
+</div>
+
+<script>
+    let drankAmount = 0;
+    const goalAmount = 1500;
+    let strokeCount = 0;
+    let soundEnabled = true;
+
+    // Funktion zum Hinzufügen der getrunkenen Menge
+    function addWater(amount) {
+        drankAmount += amount;
+        if (drankAmount > goalAmount) {
+            drankAmount = goalAmount; // Ziel nicht überschreiten
+        }
+        updateUI();
+    }
+
+    // Funktion zum Zurücksetzen
+    function resetWater() {
+        drankAmount = 0;
+        strokeCount = 0;
+        updateUI();
+    }
+
+    // Funktion zum Umschalten des Tons
+    function toggleSound() {
+        soundEnabled = !soundEnabled;
+        document.querySelector('.button.gray').innerText = soundEnabled ? 'Ton ausschalten' : 'Ton einschalten';
+    }
+
+    // Erfolgsmeldung anzeigen
+    function markComplete() {
+        alert("Gut gemacht! Weiter so!");
+    }
+
+    // Benutzeroberfläche aktualisieren
+    function updateUI() {
+        document.getElementById('drank-amount').innerText = drankAmount;
+        document.getElementById('stroke-count').innerText = strokeCount;
+        
+        const remaining = goalAmount - drankAmount;
+        document.getElementById('status-text').innerText = remaining > 0 ? 
+            `Noch ${remaining}ml bis zum Ziel.` : "Ziel erreicht!";
+    }
+
+    // Funktion, um Erinnerungen zu den festgelegten Zeiten anzuzeigen
+    function reminderPopup() {
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+
+        // Erinnerung um 8, 10, 12, 14, 16 und 18 Uhr
+        const reminderHours = [8, 10, 12, 14, 16, 18];
+        
+        if (reminderHours.includes(hours) && minutes === 0) {
+            alert("Zeit, Wasser zu trinken!");
+        }
+    }
+
+    // Funktion, um die Schläge um 20:00 Uhr zu überprüfen
+    function checkGoalAt20() {
+        const now = new Date();
+        const targetHour = 20; // 20 Uhr
+        const targetMinute = 0;
+
+        if (now.getHours() === targetHour && now.getMinutes() === targetMinute) {
+            if (drankAmount < goalAmount) {
+                strokeCount += 2; // 2 Schläge hinzufügen, wenn Ziel nicht erreicht
+                updateUI();
+                alert("Ziel nicht erreicht! 2 Schläge hinzugefügt.");
+            }
+        }
+    }
+
+    // Timer einrichten, um Erinnerungen und Zielüberprüfung auszuführen
+    setInterval(reminderPopup, 60000); // Erinnerung alle 60 Sekunden überprüfen
+    setInterval(checkGoalAt20, 60000); // Zielüberprüfung um 20 Uhr
+
+</script>
+
+</body>
+</html>
+
